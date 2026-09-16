@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vim Cheatsheet — spécial commandes g</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg:            #1d2021;
+    --bg-panel:      #282828;
+    --bg-card:       #32302f;
+    --bg-key:        #3c3836;
+    --border:        #45403d;
+    --border-soft:   #3c3836;
+    --fg:            #ebdbb2;
+    --fg-dim:        #a89984;
+    --fg-faint:      #7c6f64;
+    --yellow:        #fabd2f;
+    --orange:        #fe8019;
+    --red:           #fb4934;
+    --green:         #b8bb26;
+    --aqua:          #8ec07c;
+    --blue:          #83a598;
+    --purple:        #d3869b;
+    --g-accent:      #fe8019;
+    --g-accent-dim:  rgba(254,128,25,0.14);
+    --shadow:        0 1px 0 rgba(0,0,0,0.4), 0 6px 18px rgba(0,0,0,0.35);
+    --radius:         6px;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+    --font-sans: 'Inter', -apple-system, sans-serif;
+  }
+
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:            #fbf1c7;
+      --bg-panel:      #f2e5bc;
+      --bg-card:       #ebdbb2;
+      --bg-key:        #e4d4a8;
+      --border:        #d5c4a1;
+      --border-soft:   #dcc9a2;
+      --fg:            #3c3836;
+      --fg-dim:        #665c54;
+      --fg-faint:      #7c6f64;
+      --yellow:        #b57614;
+      --orange:        #af3a03;
+      --red:           #9d0006;
+      --green:         #79740e;
+      --aqua:          #427b58;
+      --blue:          #076678;
+      --purple:        #8f3f71;
+      --g-accent:      #af3a03;
+      --g-accent-dim:  rgba(175,58,3,0.10);
+      --shadow: 0 1px 0 rgba(0,0,0,0.05), 0 6px 18px rgba(0,0,0,0.08);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:            #fbf1c7;
+    --bg-panel:      #f2e5bc;
+    --bg-card:       #ebdbb2;
+    --bg-key:        #e4d4a8;
+    --border:        #d5c4a1;
+    --border-soft:   #dcc9a2;
+    --fg:            #3c3836;
+    --fg-dim:        #665c54;
+    --fg-faint:      #7c6f64;
+    --yellow:        #b57614;
+    --orange:        #af3a03;
+    --red:           #9d0006;
+    --green:         #79740e;
+    --aqua:          #427b58;
+    --blue:          #076678;
+    --purple:        #8f3f71;
+    --g-accent:      #af3a03;
+    --g-accent-dim:  rgba(175,58,3,0.10);
+    --shadow: 0 1px 0 rgba(0,0,0,0.05), 0 6px 18px rgba(0,0,0,0.08);
+  }
+  :root[data-theme="dark"]{
+    --bg:            #1d2021;
+    --bg-panel:      #282828;
+    --bg-card:       #32302f;
+    --bg-key:        #3c3836;
+    --border:        #45403d;
+    --fg:            #ebdbb2;
+    --g-accent:      #fe8019;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--font-sans);
+    padding: 32px 20px 80px;
+    line-height:1.5;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; }
+
+  /* ---------- header ---------- */
+  .term{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    margin-bottom:34px;
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:9px 14px;
+    background:var(--bg-key);
+    border-bottom:1px solid var(--border);
+  }
+  .term-dot{ width:10px; height:10px; border-radius:50%; }
+  .term-dot.r{ background:var(--red); }
+  .term-dot.y{ background:var(--yellow); }
+  .term-dot.g{ background:var(--green); }
+  .term-title{
+    margin-left:8px; font-family:var(--font-mono); font-size:12px; color:var(--fg-faint);
+  }
+  .term-body{ padding:22px 26px 26px; }
+  .prompt{
+    font-family:var(--font-mono); font-size:14px; color:var(--fg-dim); margin:0 0 6px;
+  }
+  .prompt .sym{ color:var(--green); }
+  .prompt .path{ color:var(--blue); }
+  h1{
+    font-family:var(--font-mono);
+    font-weight:800;
+    font-size:clamp(30px, 5vw, 46px);
+    margin:4px 0 8px;
+    letter-spacing:-0.02em;
+    color:var(--fg);
+  }
+  h1 .g{
+    color:var(--g-accent);
+  }
+  .tagline{
+    font-size:15px; color:var(--fg-dim); max-width:620px; margin:0;
+  }
+  .cursor{
+    display:inline-block; width:9px; height:1.1em; background:var(--orange);
+    vertical-align:-2px; margin-left:2px;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .cursor{ animation:none; } }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* ---------- modes legend ---------- */
+  .modes{
+    display:flex; flex-wrap:wrap; gap:10px; margin:20px 0 40px;
+  }
+  .mode-pill{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:12.5px;
+    padding:7px 12px;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:999px;
+    color:var(--fg-dim);
+  }
+  .mode-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+
+  /* ---------- section headings ---------- */
+  .section{ margin-bottom:44px; }
+  .section-head{
+    display:flex; align-items:baseline; gap:12px;
+    margin-bottom:14px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--border);
+  }
+  .section-head h2{
+    font-family:var(--font-mono);
+    font-size:18px; font-weight:700;
+    margin:0; color:var(--fg);
+  }
+  .section-head .hint{
+    font-size:12.5px; color:var(--fg-faint);
+  }
+
+  /* ---------- generic key/desc grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:8px;
+  }
+  .row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--bg-panel);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius);
+    padding:10px 12px;
+  }
+  kbd{
+    font-family:var(--font-mono);
+    font-weight:600;
+    font-size:13px;
+    color:var(--yellow);
+    background:var(--bg-key);
+    border:1px solid var(--border);
+    border-bottom-width:2px;
+    border-radius:4px;
+    padding:3px 7px;
+    white-space:nowrap;
+    flex:none;
+  }
+  .row .desc{ font-size:13px; color:var(--fg-dim); }
+
+  /* ---------- G HERO SECTION ---------- */
+  .g-hero{
+    background:
+      linear-gradient(180deg, var(--g-accent-dim), transparent 140px),
+      var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:28px 26px 30px;
+    box-shadow:var(--shadow);
+    margin-bottom:44px;
+    position:relative;
+  }
+  .g-hero-head{
+    display:flex; align-items:center; gap:16px; margin-bottom:6px; flex-wrap:wrap;
+  }
+  .g-key-big{
+    font-family:var(--font-mono);
+    font-weight:800;
+    font-size:34px;
+    color:var(--bg);
+    background:var(--g-accent);
+    border-radius:8px;
+    width:56px; height:56px;
+    display:flex; align-items:center; justify-content:center;
+    flex:none;
+    box-shadow:0 3px 0 rgba(0,0,0,0.25);
+  }
+  .g-hero-head h2{
+    font-family:var(--font-mono);
+    font-size:22px; font-weight:800; margin:0; color:var(--fg);
+  }
+  .g-hero-sub{
+    font-size:13.5px; color:var(--fg-dim); margin:0 0 26px; max-width:640px;
+  }
+
+  .g-cat{ margin-top:26px; }
+  .g-cat-title{
+    font-family:var(--font-mono);
+    font-size:11.5px; font-weight:700;
+    color:var(--g-accent);
+    margin:0 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .g-cat-title::after{
+    content:""; flex:1; height:1px; background:var(--border-soft);
+  }
+  .g-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:8px;
+  }
+  .g-row{
+    display:flex; align-items:flex-start; gap:12px;
+    background:var(--bg-card);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius);
+    padding:10px 12px;
+  }
+  .g-row kbd{ margin-top:1px; }
+  .g-row .desc{ font-size:13px; color:var(--fg-dim); }
+  .g-row .desc b{ color:var(--fg); font-weight:600; }
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:50px;
+    padding-top:18px;
+    border-top:1px solid var(--border);
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--fg-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+
+  @media (max-width:520px){
+    .term-body{ padding:18px; }
+    .g-hero{ padding:20px 16px 24px; }
+    .g-key-big{ width:46px; height:46px; font-size:26px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="term">
+    <div class="term-bar">
+      <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+      <span class="term-title">normal mode</span>
+    </div>
+    <div class="term-body">
+      <p class="prompt"><span class="sym">$</span> <span class="path">~/cheatsheet</span> nvim vim-cheatsheet.md</p>
+      <h1>Vim <span class="g">&amp; les commandes g</span></h1>
+      <p class="tagline">Aide-mémoire visuel des raccourcis Vim les plus utiles, avec une section entière consacrée au préfixe <strong>g</strong> — sans doute le plus sous-exploité de tous.<span class="cursor"></span></p>
+    </div>
+  </div>
+
+  <div class="modes">
+    <span class="mode-pill"><span class="mode-dot" style="background:var(--blue)"></span>Normal — <kbd style="padding:1px 5px;">Esc</kbd></span>
+    <span class="mode-pill"><span class="mode-dot" style="background:var(--green)"></span>Insertion — <kbd style="padding:1px 5px;">i</kbd></span>
+    <span class="mode-pill"><span class="mode-dot" style="background:var(--purple)"></span>Visuel — <kbd style="padding:1px 5px;">v</kbd> / <kbd style="padding:1px 5px;">V</kbd></span>
+    <span class="mode-pill"><span class="mode-dot" style="background:var(--yellow)"></span>Commande — <kbd style="padding:1px 5px;">:</kbd></span>
+  </div>
+
+  <!-- ============ DEPLACEMENTS DE BASE ============ -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Déplacements de base</h2>
+      <span class="hint">les fondamentaux avant d'attaquer g</span>
+    </div>
+    <div class="grid">
+      <div class="row"><kbd>h j k l</kbd><span class="desc">gauche / bas / haut / droite</span></div>
+      <div class="row"><kbd>w</kbd><span class="desc">mot suivant</span></div>
+      <div class="row"><kbd>b</kbd><span class="desc">mot précédent</span></div>
+      <div class="row"><kbd>e</kbd><span class="desc">fin du mot</span></div>
+      <div class="row"><kbd>0</kbd><span class="desc">début de la ligne</span></div>
+      <div class="row"><kbd>^</kbd><span class="desc">1er caractère non-blanc</span></div>
+      <div class="row"><kbd>$</kbd><span class="desc">fin de la ligne</span></div>
+      <div class="row"><kbd>{ }</kbd><span class="desc">paragraphe précédent / suivant</span></div>
+      <div class="row"><kbd>Ctrl-d / Ctrl-u</kbd><span class="desc">demi-page bas / haut</span></div>
+      <div class="row"><kbd>%</kbd><span class="desc">parenthèse / accolade correspondante</span></div>
+    </div>
+  </div>
+
+  <!-- ============ SECTION G — LA STAR ============ -->
+  <div class="g-hero">
+    <div class="g-hero-head">
+      <span class="g-key-big">g</span>
+      <h2>Le préfixe g, en entier</h2>
+    </div>
+    <p class="g-hero-sub">En Normal mode, <kbd style="padding:2px 6px;">g</kbd> ouvre une deuxième couche de commandes : navigation fine, changement de casse, formatage, onglets… Tout ce qui suit se tape juste après le <kbd style="padding:2px 6px;">g</kbd>.</p>
+
+    <div class="g-cat">
+      <p class="g-cat-title">navigation dans le buffer</p>
+      <div class="g-grid">
+        <div class="g-row"><kbd>gg</kbd><span class="desc">aller à la <b>première</b> ligne du fichier</span></div>
+        <div class="g-row"><kbd>G</kbd><span class="desc">aller à la <b>dernière</b> ligne du fichier</span></div>
+        <div class="g-row"><kbd>5gg</kbd><span class="desc">aller à la ligne 5 (ou <kbd style="padding:1px 5px;">5G</kbd>)</span></div>
+        <div class="g-row"><kbd>ge</kbd><span class="desc">reculer à la fin du mot précédent</span></div>
+        <div class="g-row"><kbd>gE</kbd><span class="desc">reculer à la fin du WORD précédent</span></div>
+        <div class="g-row"><kbd>g_</kbd><span class="desc">dernier caractère non-blanc de la ligne</span></div>
+        <div class="g-row"><kbd>gd</kbd><span class="desc">aller à la déclaration <b>locale</b> du mot</span></div>
+        <div class="g-row"><kbd>gD</kbd><span class="desc">aller à la déclaration <b>globale</b> du mot</span></div>
+        <div class="g-row"><kbd>gf</kbd><span class="desc">ouvrir le fichier sous le curseur</span></div>
+        <div class="g-row"><kbd>go</kbd><span class="desc">aller au N-ième octet du buffer</span></div>
+      </div>
+    </div>
+
+    <div class="g-cat">
+      <p class="g-cat-title">déplacement par ligne d'écran (wrap)</p>
+      <div class="g-grid">
+        <div class="g-row"><kbd>gj / gk</kbd><span class="desc">bas / haut, par ligne <b>affichée</b> (utile si <kbd style="padding:1px 5px;">wrap</kbd> actif)</span></div>
+        <div class="g-row"><kbd>g0 / g$</kbd><span class="desc">début / fin de la ligne d'écran</span></div>
+        <div class="g-row"><kbd>g^</kbd><span class="desc">1er caractère non-blanc de la ligne d'écran</span></div>
+        <div class="g-row"><kbd>gm</kbd><span class="desc">milieu de la ligne d'écran</span></div>
+      </div>
+    </div>
+
+    <div class="g-cat">
+      <p class="g-cat-title">changement de casse</p>
+      <div class="g-grid">
+        <div class="g-row"><kbd>gu</kbd><span class="desc">minuscule sur un mouvement — ex. <kbd style="padding:1px 5px;">guw</kbd>, <kbd style="padding:1px 5px;">guiw</kbd></span></div>
+        <div class="g-row"><kbd>gU</kbd><span class="desc">MAJUSCULE sur un mouvement — ex. <kbd style="padding:1px 5px;">gUw</kbd></span></div>
+        <div class="g-row"><kbd>g~</kbd><span class="desc">inverse la casse sur un mouvement</span></div>
+        <div class="g-row"><kbd>guu</kbd><span class="desc">toute la ligne en minuscules</span></div>
+        <div class="g-row"><kbd>gUU</kbd><span class="desc">toute la ligne en MAJUSCULES</span></div>
+        <div class="g-row"><kbd>g~~</kbd><span class="desc">inverse la casse de toute la ligne</span></div>
+        <div class="g-row"><kbd>g?</kbd><span class="desc">chiffrement ROT13 sur un mouvement</span></div>
+      </div>
+    </div>
+
+    <div class="g-cat">
+      <p class="g-cat-title">formatage &amp; jointure</p>
+      <div class="g-grid">
+        <div class="g-row"><kbd>gq</kbd><span class="desc">formater les lignes (respecte <kbd style="padding:1px 5px;">textwidth</kbd>)</span></div>
+        <div class="g-row"><kbd>gw</kbd><span class="desc">comme <kbd style="padding:1px 5px;">gq</kbd>, mais garde la position du curseur</span></div>
+        <div class="g-row"><kbd>gJ</kbd><span class="desc">joindre les lignes <b>sans</b> ajouter d'espace</span></div>
+      </div>
+    </div>
+
+    <div class="g-cat">
+      <p class="g-cat-title">édition, historique &amp; recherche</p>
+      <div class="g-grid">
+        <div class="g-row"><kbd>gv</kbd><span class="desc">resélectionner la dernière sélection visuelle</span></div>
+        <div class="g-row"><kbd>gi</kbd><span class="desc">insertion à la dernière position d'édition</span></div>
+        <div class="g-row"><kbd>gI</kbd><span class="desc">insertion forcée en colonne 1</span></div>
+        <div class="g-row"><kbd>gp / gP</kbd><span class="desc">coller puis placer le curseur <b>après</b> le texte collé</span></div>
+        <div class="g-row"><kbd>g; / g,</kbd><span class="desc">position plus ancienne / plus récente dans la changelist</span></div>
+        <div class="g-row"><kbd>g- / g+</kbd><span class="desc">état antérieur / postérieur dans l'arbre d'undo</span></div>
+        <div class="g-row"><kbd>g* / g#</kbd><span class="desc">chercher le mot sous le curseur, sans les limites de mot</span></div>
+        <div class="g-row"><kbd>g&amp;</kbd><span class="desc">rejouer le dernier <kbd style="padding:1px 5px;">:s</kbd> sur toutes les lignes</span></div>
+        <div class="g-row"><kbd>ga</kbd><span class="desc">afficher la valeur ASCII/Unicode du caractère</span></div>
+      </div>
+    </div>
+
+    <div class="g-cat">
+      <p class="g-cat-title">onglets &amp; fenêtres</p>
+      <div class="g-grid">
+        <div class="g-row"><kbd>gt / gT</kbd><span class="desc">onglet suivant / précédent</span></div>
+        <div class="g-row"><kbd>3gt</kbd><span class="desc">aller directement à l'onglet 3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ COMMANDE :g (global) ============ -->
+  <div class="g-hero" style="--g-accent:var(--yellow); --g-accent-dim:rgba(250,189,47,0.14);">
+    <div class="g-hero-head">
+      <span class="g-key-big" style="background:var(--yellow);">:g</span>
+      <h2>La commande :g — à ne pas confondre avec g</h2>
+    </div>
+    <p class="g-hero-sub">Le préfixe <kbd style="padding:2px 6px;">g</kbd> ci-dessus se tape en Normal mode. <kbd style="padding:2px 6px;">:g</kbd> (raccourci de <kbd style="padding:2px 6px;">:global</kbd>) est tout autre chose : une commande en mode Commande qui exécute une action sur <b>toutes les lignes correspondant à un motif</b>.</p>
+
+    <div class="g-cat">
+      <p class="g-cat-title">anatomie de la commande</p>
+      <div class="row" style="background:var(--bg-card); font-family:var(--font-mono); font-size:14px; gap:0; flex-wrap:wrap;">
+        <kbd style="color:var(--fg-dim);">:g</kbd><span style="color:var(--fg-faint);">/</span><kbd style="color:var(--aqua);">motif</kbd><span style="color:var(--fg-faint);">/</span><kbd style="color:var(--orange);">commande</kbd>
+        <span class="desc" style="margin-left:14px;">→ pour chaque ligne qui matche <b>motif</b>, exécute <b>commande</b></span>
+      </div>
+    </div>
+
+    <div class="g-cat">
+      <p class="g-cat-title">exemples courants</p>
+      <div class="g-grid">
+        <div class="g-row"><kbd>:g/TODO/d</kbd><span class="desc">supprimer toutes les lignes contenant <b>TODO</b></span></div>
+        <div class="g-row"><kbd>:g!/TODO/d</kbd><span class="desc">supprimer toutes les lignes <b>sans</b> TODO (ou <kbd style="padding:1px 5px;">:v/TODO/d</kbd>)</span></div>
+        <div class="g-row"><kbd>:g/foo/s//bar/g</kbd><span class="desc">remplacer foo par bar, seulement sur les lignes matchées</span></div>
+        <div class="g-row"><kbd>:g/^$/d</kbd><span class="desc">supprimer toutes les lignes vides</span></div>
+        <div class="g-row"><kbd>:g/pattern/t$</kbd><span class="desc">copier (t = copy) les lignes matchées à la fin du fichier</span></div>
+        <div class="g-row"><kbd>:g/pattern/m0</kbd><span class="desc">déplacer (m = move) les lignes matchées au début</span></div>
+        <div class="g-row"><kbd>:g/pattern/normal A;</kbd><span class="desc">exécuter une commande Normal mode sur chaque ligne matchée</span></div>
+        <div class="g-row"><kbd>:g/pattern/#</kbd><span class="desc">lister les lignes matchées avec leur numéro</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ EDITION ============ -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Édition</h2>
+      <span class="hint">supprimer, copier, coller, annuler</span>
+    </div>
+    <div class="grid">
+      <div class="row"><kbd>x</kbd><span class="desc">supprimer le caractère</span></div>
+      <div class="row"><kbd>dd</kbd><span class="desc">supprimer la ligne</span></div>
+      <div class="row"><kbd>dw</kbd><span class="desc">supprimer jusqu'au mot suivant</span></div>
+      <div class="row"><kbd>D</kbd><span class="desc">supprimer jusqu'à la fin de la ligne</span></div>
+      <div class="row"><kbd>yy</kbd><span class="desc">copier (yank) la ligne</span></div>
+      <div class="row"><kbd>p / P</kbd><span class="desc">coller après / avant le curseur</span></div>
+      <div class="row"><kbd>u</kbd><span class="desc">annuler</span></div>
+      <div class="row"><kbd>Ctrl-r</kbd><span class="desc">rétablir (redo)</span></div>
+      <div class="row"><kbd>.</kbd><span class="desc">répéter la dernière modification</span></div>
+      <div class="row"><kbd>cw</kbd><span class="desc">changer le mot (delete + insert)</span></div>
+      <div class="row"><kbd>r</kbd><span class="desc">remplacer un caractère</span></div>
+      <div class="row"><kbd>J</kbd><span class="desc">joindre la ligne suivante (avec espace)</span></div>
+    </div>
+  </div>
+
+  <!-- ============ RECHERCHE ============ -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Recherche &amp; remplacement</h2>
+    </div>
+    <div class="grid">
+      <div class="row"><kbd>/motif</kbd><span class="desc">chercher vers l'avant</span></div>
+      <div class="row"><kbd>?motif</kbd><span class="desc">chercher vers l'arrière</span></div>
+      <div class="row"><kbd>n / N</kbd><span class="desc">occurrence suivante / précédente</span></div>
+      <div class="row"><kbd>*  / #</kbd><span class="desc">chercher le mot sous le curseur (avant/arrière)</span></div>
+      <div class="row"><kbd>:%s/a/b/g</kbd><span class="desc">remplacer a par b sur tout le fichier</span></div>
+      <div class="row"><kbd>:%s/a/b/gc</kbd><span class="desc">idem, avec confirmation</span></div>
+    </div>
+  </div>
+
+  <!-- ============ VISUEL ============ -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Mode visuel</h2>
+    </div>
+    <div class="grid">
+      <div class="row"><kbd>v</kbd><span class="desc">visuel caractère</span></div>
+      <div class="row"><kbd>V</kbd><span class="desc">visuel ligne</span></div>
+      <div class="row"><kbd>Ctrl-v</kbd><span class="desc">visuel bloc</span></div>
+      <div class="row"><kbd>o</kbd><span class="desc">basculer l'extrémité active de la sélection</span></div>
+      <div class="row"><kbd>gv</kbd><span class="desc">resélectionner la dernière sélection</span></div>
+      <div class="row"><kbd>&gt; / &lt;</kbd><span class="desc">indenter / désindenter la sélection</span></div>
+    </div>
+  </div>
+
+  <!-- ============ FENETRES ============ -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Fenêtres &amp; buffers</h2>
+    </div>
+    <div class="grid">
+      <div class="row"><kbd>:split</kbd><span class="desc">scinder horizontalement</span></div>
+      <div class="row"><kbd>:vsplit</kbd><span class="desc">scinder verticalement</span></div>
+      <div class="row"><kbd>Ctrl-w w</kbd><span class="desc">passer à la fenêtre suivante</span></div>
+      <div class="row"><kbd>Ctrl-w q</kbd><span class="desc">fermer la fenêtre</span></div>
+      <div class="row"><kbd>:bn / :bp</kbd><span class="desc">buffer suivant / précédent</span></div>
+      <div class="row"><kbd>:ls</kbd><span class="desc">lister les buffers ouverts</span></div>
+    </div>
+  </div>
+
+  <footer>
+    <span>gruvbox palette · normal mode friendly</span>
+    <span>:wq</span>
+  </footer>
+
+</div>
+</body>
+</html>
